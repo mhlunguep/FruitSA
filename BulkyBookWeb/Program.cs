@@ -8,9 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OfficeOpenXml;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Set EPPlus license context
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

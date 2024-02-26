@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.IO;
 using System.Linq;
+using OfficeOpenXml;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FruitSA.Controllers
 {
@@ -48,7 +51,7 @@ namespace FruitSA.Controllers
             if (id != null)
             {
                 productVM.Product = _unitOfWork.Product.GetFirstOrDefault(x => x.ProductId == id);
-                                }
+            }
             else
             {
                 productVM.Product = new Product();
@@ -128,7 +131,7 @@ namespace FruitSA.Controllers
 
                 // Save changes to the database
                 _unitOfWork.Save();
-                TempData["success"] = "Product created successfully";
+                TempData["success"] = "Saved successfully";
                 return RedirectToAction(nameof(Index));
             }
             return View(obj);
@@ -156,6 +159,159 @@ namespace FruitSA.Controllers
             string productCode = $"{yearMonth}-{sequenceNumber.ToString("D3")}";
             return productCode;
         }
+        public IActionResult DownloadProductsExcel()
+        {
+            // Set the license context
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            // Retrieve data from the database
+            var products = _unitOfWork.Product.GetAll();
+
+            // Project the data and format the dates
+            var formattedData = products.Select(p => new {
+                p.ProductId,
+                p.ProductCode,
+                p.Name,
+                p.Description,
+                p.CategoryId,
+                p.Price,
+                p.ImageUrl,
+                p.Username,
+                CreatedDate = p.CreatedDate.ToString("dd MMM yyyy, HH:mm:ss"),
+                UpdatedAt = p.UpdatedAt != null ? p.UpdatedAt.Value.ToString("dd MMM yyyy, HH:mm:ss") : "N/A"
+            });
+
+            // Create Excel package
+            using (ExcelPackage excelPackage = new ExcelPackage())
+            {
+                // Create worksheet
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("Products");
+
+                // Load data from collection
+                worksheet.Cells.LoadFromCollection(formattedData, true);
+
+                // Auto-fit columns
+                worksheet.Cells.AutoFitColumns();
+
+                // Convert package to bytes
+                byte[] fileBytes = excelPackage.GetAsByteArray();
+
+                // Return Excel file
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Products.xlsx");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadProductsExcel(IFormFile file)
+        {
+            if (file == null || file.Length <= 0)
+            {
+                return BadRequest("File is empty");
+            }
+
+            // Check if the file is an Excel file
+            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
+            {
+                return BadRequest("Invalid file format. Please upload a valid Excel file.");
+            }
+
+            // Read the Excel file
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+                    var products = new List<Product>();
+
+                    // Start from 2 to skip the header row
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var product = new Product
+                        {
+                            // Assuming your Excel columns are in order: ProductId, ProductCode, Name, Description, CategoryId, Price, ImageUrl, Username
+                            // Update the index values for each column
+                            ProductCode = worksheet.Cells[row, 2].Value?.ToString(),
+                            Name = worksheet.Cells[row, 3].Value?.ToString(),
+                            Description = worksheet.Cells[row, 4].Value?.ToString(),
+                            CategoryId = Convert.ToInt32(worksheet.Cells[row, 5].Value),
+                            Price = Convert.ToDouble(worksheet.Cells[row, 6].Value),
+                            ImageUrl = worksheet.Cells[row, 7].Value?.ToString(),
+                            Username = worksheet.Cells[row, 8].Value?.ToString(),
+                            CreatedDate = DateTime.Now, // Set the current date as created date
+                            UpdatedAt = null // Set UpdatedAt as null initially
+                        };
+
+                        products.Add(product);
+                    }
+
+                    // Save products to the database
+                    _unitOfWork.Product.AddRange(products);
+                    _unitOfWork.Save();
+                }
+            }
+
+            TempData["success"] = "Product uploaded successfully";
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> UploadProductsExcel(IFormFile file)
+        //{
+        //    if (file == null || file.Length <= 0)
+        //    {
+        //        return BadRequest("File is empty");
+        //    }
+
+        //    // Check if the file is an Excel file
+        //    if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
+        //    {
+        //        return BadRequest("Invalid file format. Please upload a valid Excel file.");
+        //    }
+
+        //    // Read the Excel file
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        await file.CopyToAsync(stream);
+        //        using (var package = new ExcelPackage(stream))
+        //        {
+        //            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+        //            int rowCount = worksheet.Dimension.Rows;
+        //            var products = new List<Product>();
+
+        //            // Start from 2 to skip the header row
+        //            for (int row = 2; row <= rowCount; row++)
+        //            {
+        //                var product = new Product
+        //                {
+        //                    // Assuming your Excel columns are in order: ProductCode, Name, Description, CategoryId, Price, ImageUrl, Username
+        //                    ProductCode = worksheet.Cells[row, 1].Value.ToString(),
+        //                    Name = worksheet.Cells[row, 2].Value.ToString(),
+        //                    Description = worksheet.Cells[row, 3].Value.ToString(),
+        //                    CategoryId = Convert.ToInt32(worksheet.Cells[row, 4].Value),
+        //                    Price = Convert.ToDouble(worksheet.Cells[row, 5].Value),
+        //                    ImageUrl = worksheet.Cells[row, 6].Value.ToString(),
+        //                    Username = worksheet.Cells[row, 7].Value.ToString(),
+        //                    CreatedDate = DateTime.Now, // Set the current date as created date
+        //                    UpdatedAt = null // Set UpdatedAt as null initially
+        //                };
+
+        //                products.Add(product);
+        //            }
+
+        //            // Save products to the database
+        //            _unitOfWork.Product.AddRange(products);
+        //            _unitOfWork.Save();
+        //        }
+        //    }
+
+        //    return Ok("Products uploaded successfully");
+        //}
+
 
 
         #region API CALLS
