@@ -90,6 +90,10 @@ namespace FruitSA.Controllers
                 if (obj.Product.ProductId == 0) // New product
                 {
                     obj.Product.ProductCode = GenerateProductCode(); // Generate new product code
+
+                    // Set the user who created the category
+                    var userName = HttpContext.User.Identity.Name;
+                    obj.Product.Username = userName;
                     _unitOfWork.Product.Add(obj.Product);
                 }
                 else // Existing product

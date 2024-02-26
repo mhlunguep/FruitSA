@@ -1,19 +1,36 @@
-﻿var dataTable;
-
-$(document).ready(function () {
+﻿$(document).ready(function () {
     loadDataTable();
 });
 
 function loadDataTable() {
     dataTable = $('#tblData').DataTable({
         "ajax": {
-            "url":"/Admin/Product/GetAll"
+            "url": "/Admin/Product/GetAll"
         },
         "columns": [
-            { "data": "name", "width": "15%" },
-            { "data": "productCode", "width": "15%" },
-            { "data": "category.categoryName", "width": "15%" },
-            { "data": "price", "width": "15%" },
+            { "data": "name", "width": "20%" },
+            { "data": "productCode", "width": "20%" },
+            { "data": "category.categoryName", "width": "20%" },
+            { "data": "price", "width": "5%" },
+            { "data": "username", "width": "20%" },
+            {
+                "data": "createdDate",
+                "width": "15%",
+                "render": function (data) {
+                    return formatDate(data);
+                }
+            },
+            {
+                "data": "updatedAt",
+                "width": "15%",
+                "render": function (data) {
+                    if (data) {
+                        return formatDate(data);
+                    } else {
+                        return "N/A";
+                    }
+                }
+            },
             {
                 "data": "productId",
                 "render": function (data) {
@@ -26,10 +43,18 @@ function loadDataTable() {
 					</div>
                         `
                 },
-                "width": "15%"
+                "width": "5%"
             }
         ]
     });
+}
+
+
+function formatDate(dateString) {
+    if (!dateString) return "";
+    var date = new Date(dateString);
+    var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return date.toLocaleDateString('en-GB', options);
 }
 
 function Delete(url) {

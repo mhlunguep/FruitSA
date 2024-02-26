@@ -12,7 +12,7 @@ namespace FruitSA.Models
         public string ProductCode { get; set; } = string.Empty;
         [Required(ErrorMessage = "Please provide a Product Name")]
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [Required]
         [Display(Name = "Category")]
@@ -25,10 +25,10 @@ namespace FruitSA.Models
         public double Price { get; set; }
 
         [ValidateNever]
+        [Display(Name = "Product Image")]
         public string? ImageUrl { get; set; }
         public string Username { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; }
-
+        public DateTime? UpdatedAt { get; set; }
     }
 }
