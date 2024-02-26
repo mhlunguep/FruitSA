@@ -19,7 +19,6 @@ namespace FruitSA.DataAccess.Repository
 
         public void Update(Category obj)
         {
-            obj.Username = obj.Username;
             obj.UpdatedAt = DateTime.Now;
             _db.Categories.Update(obj);
         }

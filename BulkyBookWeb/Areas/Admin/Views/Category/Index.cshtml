@@ -26,29 +26,34 @@
                  Code
 			</th>
             <th>
-                Created On
+                Created By
 			</th>
             <th>
-                    Created By
-              </th>
-            <th></th>
+               Created On
+            </th>
+            <th>
+                Updated On
+            </th>
 		</tr>
 	</thead>
     <tbody>
         @foreach(var obj in Model)
         {
             <tr>
-                <td width="25%">
+                <td width="20%">
                     @obj.CategoryName
 				</td>
-                <td width="25%">
+                <td width="20%">
                     @obj.CategoryCode
 				</td>
-                <td width="25%">
+                <td width="20%">
+                    @obj.Username
+                </td>
+                <td width="20%">
                     @obj.CreatedDate
 				</td>
-                <td width="25%">
-                    @obj.Username
+                <td width="20%">
+                    @obj.UpdatedAt
 				</td>
                 <td>
                     <div class="w-75 btn-group" role="group">

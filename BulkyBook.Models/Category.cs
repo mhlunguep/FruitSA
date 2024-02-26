@@ -12,8 +12,8 @@ namespace FruitSA.Models
         [Required]
         public string CategoryCode { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
-        public string Username { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public DateTime? UpdatedAt { get; set; }
     }
 }
