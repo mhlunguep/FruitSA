@@ -71,7 +71,8 @@ namespace FruitSA.Controllers
                     var uploads = Path.Combine(wwwRootPath, @"images\products");
                     var extension = Path.GetExtension(file.FileName);
 
-                    if (obj.Product.ImageUrl != null)
+                    // Delete the old image if it exists
+                    if (!string.IsNullOrEmpty(obj.Product.ImageUrl))
                     {
                         var oldImagePath = Path.Combine(wwwRootPath, obj.Product.ImageUrl.TrimStart('\\'));
                         if (System.IO.File.Exists(oldImagePath))
@@ -80,36 +81,40 @@ namespace FruitSA.Controllers
                         }
                     }
 
+                    // Save the new image
                     using (var fileStream = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
+
+                    // Update the ImageUrl property of the product
                     obj.Product.ImageUrl = @"\images\products\" + fileName + extension;
                 }
 
                 if (obj.Product.ProductId == 0) // New product
                 {
-                    obj.Product.ProductCode = GenerateProductCode(); // Generate new product code
+                    // Generate new product code
+                    obj.Product.ProductCode = GenerateProductCode();
 
-                    // Set the user who created the category
+                    // Set the user who created the product
                     var userName = HttpContext.User.Identity.Name;
                     obj.Product.Username = userName;
+
+                    // Add the new product to the database
                     _unitOfWork.Product.Add(obj.Product);
                 }
                 else // Existing product
                 {
                     // Retrieve the existing product from the database to update its values
                     var existingProduct = _unitOfWork.Product.GetFirstOrDefault(x => x.ProductId == obj.Product.ProductId);
-                        
+
                     if (existingProduct != null)
                     {
                         // Update existing product properties
                         existingProduct.Name = obj.Product.Name;
                         existingProduct.Description = obj.Product.Description;
                         existingProduct.Price = obj.Product.Price;
-
-                        // Ensure the product code remains the same
-                        obj.Product.ProductCode = existingProduct.ProductCode;
+                        existingProduct.ImageUrl = obj.Product.ImageUrl;
 
                         // Update the product in the database
                         _unitOfWork.Product.Update(existingProduct);
@@ -121,6 +126,7 @@ namespace FruitSA.Controllers
                     }
                 }
 
+                // Save changes to the database
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
                 return RedirectToAction(nameof(Index));
