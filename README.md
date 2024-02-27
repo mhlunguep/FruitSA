@@ -2,7 +2,7 @@
 
 This is a web application built using ASP.NET MVC, CSS with Bootstrap, Entity Framework 6, and SQL Server. The application is designed to efficiently manage a list of products and categories associated with a user.
 
-# Overview
+## Overview
 
 The objective of this project is to develop a highly scalable and secure web application for managing products and categories. Users will be able to perform CRUD operations on products, categorize them, and associate them with their respective categories.
 
