@@ -226,6 +226,9 @@ namespace FruitSA.Controllers
                     int rowCount = worksheet.Dimension.Rows;
                     var products = new List<Product>();
 
+                    // Get the username from HttpContext or from the Excel file
+                    var userName = HttpContext.User.Identity.Name;
+
                     // Start from 2 to skip the header row
                     for (int row = 2; row <= rowCount; row++)
                     {
@@ -239,9 +242,9 @@ namespace FruitSA.Controllers
                             CategoryId = Convert.ToInt32(worksheet.Cells[row, 5].Value),
                             Price = Convert.ToDouble(worksheet.Cells[row, 6].Value),
                             ImageUrl = worksheet.Cells[row, 7].Value?.ToString(),
-                            Username = worksheet.Cells[row, 8].Value?.ToString(),
-                            CreatedDate = DateTime.Now, 
-                            UpdatedAt = null 
+                            Username = !string.IsNullOrEmpty(worksheet.Cells[row, 8].Value?.ToString()) ? worksheet.Cells[row, 8].Value?.ToString() : userName,
+                            CreatedDate = DateTime.Now,
+                            UpdatedAt = null
                         };
 
                         products.Add(product);
