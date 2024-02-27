@@ -27,7 +27,7 @@ namespace FruitSA.DataAccess.Repository
                 objFromDb.Description = obj.Description;
                 objFromDb.Price = obj.Price;
                 objFromDb.Username = obj.Username;
-                objFromDb.UpdatedAt = obj.UpdatedAt;
+                objFromDb.UpdatedAt = DateTime.Now;
 
                 if (obj.ImageUrl != null)
                 {
