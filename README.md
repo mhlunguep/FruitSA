@@ -28,14 +28,12 @@ To get started with this project, follow these steps:
    a. `add-migration "First Migrations"`
    b. `update-database`
 
-   If you are not sure about the above, see screenshot called PackageManager on the root of this repo
+   If you are not sure about the above, see the screenshot called PackageManager on the root of this repo
 
 4. Build and Run the Application: Build the solution using Visual Studio or your preferred IDE. Run the application and navigate to the URL to access the product management system.
 
-5. Login using the following details or you can register your own details by clinking the register link on the top menu
-   username: admin@fruitsa.com
-   password: Admin123\*
-
+5.  Register on the system by clicking the register link on the top menu and putting your details and I should log you in after that
+   
 6. Upload Products using Excel
    
    a. First go to the root of this repo and find excel document named Products
