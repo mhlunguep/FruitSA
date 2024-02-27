@@ -2,6 +2,8 @@
 using FruitSA.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace FruitSA.DataAccess.DbInitializer
 {
@@ -21,44 +23,59 @@ namespace FruitSA.DataAccess.DbInitializer
             _db = db;
         }
 
-
         public void Initialize()
         {
-            //migrations if they are not applied
+            // Migrations if they are not applied
             try
             {
-                if (_db.Database.GetPendingMigrations().Count() > 0)
+                if (_db.Database.GetPendingMigrations().Any())
                 {
                     _db.Database.Migrate();
                 }
             }
             catch (Exception ex)
             {
-
+                // Handle migration exception if necessary
             }
 
-            //create roles if they are not created
+            // Create roles if they are not created
             if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_User_Indi)).GetAwaiter().GetResult();
 
-                //if roles are not created, then we will create admin user as well
-
-                _userManager.CreateAsync(new ApplicationUser
+                // If roles are not created, then we will create admin user as well
+                if (_db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@fruitsa.com") == null)
                 {
-                    UserName = "AdminUser",
-                    Email = "admin@fruitsa.com",
-                    FirstName = "Admin",
-                    LastName = "FruitSA"
-                }, "Admin123*").GetAwaiter().GetResult();
+                    _userManager.CreateAsync(new ApplicationUser
+                    {
+                        UserName = "AdminUser",
+                        Email = "admin@fruitsa.com",
+                        FirstName = "Admin",
+                        LastName = "FruitSA"
+                    }, "Admin123*").GetAwaiter().GetResult();
 
-                ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@fruitsa.com");
+                    ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@fruitsa.com");
 
-                _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
-
+                    _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
+                }
             }
-            return;
+
+            // Insert dummy data for categories
+            if (!_db.Categories.Any())
+            {
+                // Generate some dummy data
+                var categories = new List<Category>
+                {
+                    new Category { CategoryName = "Front End", CategoryCode = "FRE401", IsActive = true, Username = "admin@fruitsa.com", CreatedDate = DateTime.Now, UpdatedAt = null },
+                    new Category { CategoryName = "Back End", CategoryCode = "BKE602", IsActive = true, Username = "admin@fruitsa.com", CreatedDate = DateTime.Now, UpdatedAt = DateTime.Now },
+                    new Category { CategoryName = "Database", CategoryCode = "DAB601", IsActive = true, Username = "admin@fruitsa.com", CreatedDate = DateTime.Now, UpdatedAt = null },
+                   
+                };
+
+                _db.Categories.AddRange(categories);
+                _db.SaveChanges();
+            }
         }
     }
 }

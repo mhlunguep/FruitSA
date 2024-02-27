@@ -35,11 +35,16 @@ To get started with this project, follow these steps:
    username: admin@fruitsa.com
    password: Admin123\*
 
-6. To upload Products using Excel
+6. Upload Products using Excel
+   a. First go to the root of this repo and find excel document named Products
+   b. Then go to Content Management > Product and upload the Excel file and press the Upload button
+   c. Now go to the home page, you should see the products you have just uploaded with their images
+   d. To Download the products Content Management > Product you should see a download button at the bottom of the product list
+7. To upload your own Products using Excel
    a. First create Categories by navigating to Content Management > Category and click the Create New Category button
    b. Then go to Content Management > Product and upload the Excel file
    **_NB: This file should have these columns in this order: ProductId, ProductCode, Name, Description, CategoryId, Price, ImageUrl, Username, CreatedDate, UpdatedAt_**
    Also the CategoryId on Excel file should match the existing CategoryId on Database
-   I have provided an example Excel file called Products on the root of this repo
+8. You can also create products by cling the Create Products button
 
 If you encounter any issues please do not hesitate to let know.
