@@ -9,8 +9,8 @@ function loadDataTable() {
         },
         "columns": [
             { "data": "name", "width": "20%" },
-            { "data": "productCode", "width": "20%" },
-            { "data": "category.categoryName", "width": "20%" },
+            { "data": "productCode", "width": "15%" },
+            { "data": "category.categoryName", "width": "15%" },
             { "data": "price", "width": "5%" },
             { "data": "username", "width": "20%" },
             {
@@ -22,7 +22,7 @@ function loadDataTable() {
             },
             {
                 "data": "updatedAt",
-                "width": "15%",
+                "width": "20%",
                 "render": function (data) {
                     if (data) {
                         return formatDate(data);

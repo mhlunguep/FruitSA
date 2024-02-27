@@ -3,7 +3,6 @@ using FruitSA.Models;
 using FruitSA.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -106,7 +105,11 @@ public class CategoryController : Controller
                 ModelState.AddModelError("CategoryCode", "Category code must contain 3 alphabet letters followed by 3 numeric characters.");
                 return View(obj);
             }
-            
+
+            // Set the user who updated the category
+            var userName = HttpContext.User.Identity.Name;
+            obj.Username = userName;
+
             _unitOfWork.Category.Update(obj);
             _unitOfWork.Save();
             TempData["success"] = "Category updated successfully";
